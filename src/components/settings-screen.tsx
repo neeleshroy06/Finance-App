@@ -102,13 +102,6 @@ export function SettingsScreen() {
     if (error) setAuthError(error.message);
   };
 
-  const handleSignUp = async () => {
-    setAuthError(null);
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) setAuthError(error.message);
-    else setAuthError("Check your email to confirm your account.");
-  };
-
   const deleteRule = async (merchantName: string) => {
     await fetch("/api/merchant-rules", {
       method: "DELETE",
@@ -155,21 +148,12 @@ export function SettingsScreen() {
               {authError && (
                 <p className="text-xs text-red-400">{authError}</p>
               )}
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSignIn}
-                  className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-white"
-                >
-                  Sign in
-                </Button>
-                <Button
-                  onClick={handleSignUp}
-                  variant="outline"
-                  className="flex-1 border-zinc-700 text-zinc-200"
-                >
-                  Sign up
-                </Button>
-              </div>
+              <Button
+                onClick={handleSignIn}
+                className="w-full bg-zinc-100 text-zinc-900 hover:bg-white"
+              >
+                Sign in
+              </Button>
             </div>
           ) : (
             <>
