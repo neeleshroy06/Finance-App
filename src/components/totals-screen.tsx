@@ -14,22 +14,24 @@ import {
 } from "@/lib/types";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-const categoryColors: Record<Exclude<Category, "skip">, string> = {
+const categoryColors: Record<Exclude<Category, "skip" | "refund">, string> = {
   food: "text-orange-400",
   other: "text-violet-400",
   friend: "text-cyan-400",
+  extra: "text-emerald-400",
 };
 
-const categoryBg: Record<Exclude<Category, "skip">, string> = {
+const categoryBg: Record<Exclude<Category, "skip" | "refund">, string> = {
   food: "bg-orange-500/10 border-orange-500/20",
   other: "bg-violet-500/10 border-violet-500/20",
   friend: "bg-cyan-500/10 border-cyan-500/20",
+  extra: "bg-emerald-500/10 border-emerald-500/20",
 };
 
 export function TotalsScreen() {
   const [period, setPeriod] = useState<Period>("week");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [expanded, setExpanded] = useState<Exclude<Category, "skip"> | null>(null);
+  const [expanded, setExpanded] = useState<Exclude<Category, "skip" | "refund"> | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {

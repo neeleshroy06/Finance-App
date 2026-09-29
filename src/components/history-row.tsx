@@ -24,6 +24,8 @@ const badgeStyles: Record<Category, string> = {
   food: "bg-orange-500/20 text-orange-400",
   other: "bg-violet-500/20 text-violet-400",
   friend: "bg-cyan-500/20 text-cyan-400",
+  extra: "bg-emerald-500/20 text-emerald-400",
+  refund: "bg-rose-500/20 text-rose-400",
   skip: "bg-slate-500/20 text-slate-400",
 };
 
@@ -31,6 +33,8 @@ const buttonStyles: Record<Category, string> = {
   food: "bg-orange-500/20 text-orange-400 border-orange-500/40 hover:bg-orange-500/30",
   other: "bg-violet-500/20 text-violet-400 border-violet-500/40 hover:bg-violet-500/30",
   friend: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/30",
+  extra: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/30",
+  refund: "bg-rose-500/20 text-rose-400 border-rose-500/40 hover:bg-rose-500/30",
   skip: "bg-slate-500/20 text-slate-400 border-slate-500/40 hover:bg-slate-500/30",
 };
 
@@ -85,7 +89,7 @@ export function HistoryRow({
             onCancel={onTap}
           />
         ) : isEditing ? (
-          <div className="grid w-full grid-cols-4 gap-2">
+          <div className="grid w-full grid-cols-3 gap-2 sm:grid-cols-6">
             {CATEGORIES.map((cat) => (
               <Button
                 key={cat}

@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         (t) =>
           t.category !== null &&
           t.category !== "skip" &&
+          t.category !== "refund" &&
           isInPeriod(t.date, period as "week" | "month" | "all")
       );
     return NextResponse.json({ transactions: txs });
@@ -53,6 +54,7 @@ export async function GET(request: NextRequest) {
     .eq("user_id", user.id)
     .not("category", "is", null)
     .neq("category", "skip")
+    .neq("category", "refund")
     .order("date", { ascending: false });
 
   const start = getPeriodStart(period as "week" | "month" | "all");

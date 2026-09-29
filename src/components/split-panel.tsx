@@ -35,6 +35,8 @@ const categoryStyles: Record<Category, string> = {
   food: "bg-orange-500/20 text-orange-400 border-orange-500/40",
   other: "bg-violet-500/20 text-violet-400 border-violet-500/40",
   friend: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40",
+  extra: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
+  refund: "bg-rose-500/20 text-rose-400 border-rose-500/40",
   skip: "bg-slate-500/20 text-slate-400 border-slate-500/40",
 };
 
@@ -42,6 +44,8 @@ const activeCategoryStyles: Record<Category, string> = {
   food: "bg-orange-500/40 text-orange-300 border-orange-500/60",
   other: "bg-violet-500/40 text-violet-300 border-violet-500/60",
   friend: "bg-cyan-500/40 text-cyan-300 border-cyan-500/60",
+  extra: "bg-emerald-500/40 text-emerald-300 border-emerald-500/60",
+  refund: "bg-rose-500/40 text-rose-300 border-rose-500/60",
   skip: "bg-slate-500/40 text-slate-300 border-slate-500/60",
 };
 
@@ -132,7 +136,7 @@ export function SplitPanel({
             className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_7rem_auto]"
           >
             <div className="grid grid-cols-4 gap-1.5">
-              {(["food", "other", "friend", "skip"] as Category[]).map((cat) => (
+              {(["food", "other", "friend", "extra", "refund", "skip"] as Category[]).map((cat) => (
                 <button
                   key={cat}
                   type="button"

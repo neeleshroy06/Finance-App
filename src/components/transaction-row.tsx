@@ -23,6 +23,8 @@ const categoryStyles: Record<Category, string> = {
   food: "bg-orange-500/20 text-orange-400 border-orange-500/40 hover:bg-orange-500/30",
   other: "bg-violet-500/20 text-violet-400 border-violet-500/40 hover:bg-violet-500/30",
   friend: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40 hover:bg-cyan-500/30",
+  extra: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/30",
+  refund: "bg-rose-500/20 text-rose-400 border-rose-500/40 hover:bg-rose-500/30",
   skip: "bg-slate-500/20 text-slate-400 border-slate-500/40 hover:bg-slate-500/30",
 };
 
@@ -30,6 +32,8 @@ const suggestedRing: Record<Category, string> = {
   food: "ring-2 ring-orange-500/60 ring-offset-1 ring-offset-zinc-950",
   other: "ring-2 ring-violet-500/60 ring-offset-1 ring-offset-zinc-950",
   friend: "ring-2 ring-cyan-500/60 ring-offset-1 ring-offset-zinc-950",
+  extra: "ring-2 ring-emerald-500/60 ring-offset-1 ring-offset-zinc-950",
+  refund: "ring-2 ring-rose-500/60 ring-offset-1 ring-offset-zinc-950",
   skip: "ring-2 ring-slate-500/60 ring-offset-1 ring-offset-zinc-950",
 };
 
@@ -81,8 +85,8 @@ export function TransactionRow({
         />
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-2">
-            {(["food", "other", "friend", "skip"] as Category[]).map((cat) => (
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+            {(["food", "other", "friend", "extra", "refund", "skip"] as Category[]).map((cat) => (
               <Button
                 key={cat}
                 variant="category"

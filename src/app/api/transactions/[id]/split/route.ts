@@ -11,7 +11,7 @@ function validateSplits(splits: SplitInput[]): string | null {
   }
 
   for (const split of splits) {
-    if (!split.category || !["food", "other", "friend", "skip"].includes(split.category)) {
+    if (!split.category || !["food", "other", "friend", "extra", "refund", "skip"].includes(split.category)) {
       return "Invalid category in split";
     }
     if (!split.amount || split.amount <= 0) {

@@ -38,6 +38,7 @@ export async function syncTransactionsForItems(
             merchant_name: tx.merchant_name ?? tx.name,
             amount: tx.amount,
             date: tx.date,
+            category: tx.amount < 0 ? "refund" : undefined,
           },
           { onConflict: "plaid_transaction_id" }
         );
@@ -51,6 +52,7 @@ export async function syncTransactionsForItems(
             merchant_name: tx.merchant_name ?? tx.name,
             amount: tx.amount,
             date: tx.date,
+            ...(tx.amount < 0 ? { category: "refund" } : {}),
           })
           .eq("plaid_transaction_id", tx.transaction_id);
         if (!error) synced++;

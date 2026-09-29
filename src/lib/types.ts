@@ -1,4 +1,4 @@
-export type Category = "food" | "other" | "friend" | "skip";
+export type Category = "food" | "other" | "friend" | "extra" | "refund" | "skip";
 
 /** Stored on a transaction when it was split across categories. */
 export type TransactionCategory = Category | "split";
@@ -36,19 +36,22 @@ export interface MerchantRule {
   category: Category;
 }
 
-export const CATEGORIES: Category[] = ["food", "other", "friend", "skip"];
+export const CATEGORIES: Category[] = ["food", "other", "friend", "extra", "refund", "skip"];
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   food: "Food",
   other: "Other",
   friend: "Friend",
+  extra: "Extra",
+  refund: "Refund",
   skip: "Skip",
 };
 
-export const TOTAL_CATEGORIES: Exclude<Category, "skip">[] = [
+export const TOTAL_CATEGORIES: Exclude<Category, "skip" | "refund">[] = [
   "food",
   "other",
   "friend",
+  "extra",
 ];
 
 export const PERIOD_LABELS: Record<Period, string> = {

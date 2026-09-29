@@ -46,7 +46,7 @@ export function remainingAmount(total: number, splits: SplitInput[]): number {
 
 export function computeCategoryTotals(
   transactions: Transaction[]
-): Record<Exclude<Category, "skip">, number> {
+): Record<Exclude<Category, "skip" | "refund">, number> {
   const totals = TOTAL_CATEGORIES.reduce(
     (acc, cat) => {
       acc[cat] = 0;
@@ -58,14 +58,15 @@ export function computeCategoryTotals(
   for (const tx of transactions) {
     if (tx.category === "split" && tx.splits?.length) {
       for (const split of tx.splits) {
-        if (split.category !== "skip") {
+        if (split.category !== "skip" && split.category !== "refund") {
           totals[split.category] += Math.abs(Number(split.amount));
         }
       }
     } else if (
       tx.category === "food" ||
       tx.category === "other" ||
-      tx.category === "friend"
+      tx.category === "friend" ||
+      tx.category === "extra"
     ) {
       totals[tx.category] += Math.abs(Number(tx.amount));
     }
@@ -76,7 +77,7 @@ export function computeCategoryTotals(
 
 export function getTransactionsForCategory(
   transactions: Transaction[],
-  category: Exclude<Category, "skip">
+  category: Exclude<Category, "skip" | "refund">
 ): { transaction: Transaction; amount: number }[] {
   const result: { transaction: Transaction; amount: number }[] = [];
 

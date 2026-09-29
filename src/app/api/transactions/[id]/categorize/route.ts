@@ -12,7 +12,7 @@ export async function PATCH(
   const body = await request.json();
   const category = body.category as Category;
 
-  if (!category || !["food", "other", "friend", "skip"].includes(category)) {
+  if (!category || !["food", "other", "friend", "extra", "refund", "skip"].includes(category)) {
     return NextResponse.json({ error: "Invalid category" }, { status: 400 });
   }
 
