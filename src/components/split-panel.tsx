@@ -127,15 +127,18 @@ export function SplitPanel({
 
       <div className="space-y-2">
         {lines.map((line) => (
-          <div key={line.id} className="flex items-center gap-2">
-            <div className="grid flex-1 grid-cols-4 gap-1">
+          <div
+            key={line.id}
+            className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_7rem_auto]"
+          >
+            <div className="grid grid-cols-4 gap-1.5">
               {(["food", "other", "friend", "skip"] as Category[]).map((cat) => (
                 <button
                   key={cat}
                   type="button"
                   onClick={() => updateLine(line.id, { category: cat })}
                   className={cn(
-                    "rounded-md border px-1 py-1.5 text-[10px] font-semibold transition-colors sm:text-xs",
+                    "h-10 rounded-md border px-1 text-xs font-semibold transition-colors",
                     line.category === cat
                       ? activeCategoryStyles[cat]
                       : categoryStyles[cat]
@@ -146,7 +149,7 @@ export function SplitPanel({
               ))}
             </div>
 
-            <div className="relative w-24 shrink-0">
+            <div className="relative">
               <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-zinc-500">
                 $
               </span>
@@ -158,7 +161,7 @@ export function SplitPanel({
                 placeholder="0.00"
                 value={line.amount}
                 onChange={(e) => updateLine(line.id, { amount: e.target.value })}
-                className="w-full rounded-md border border-zinc-700 bg-zinc-800/60 py-1.5 pl-5 pr-1 text-right text-sm tabular-nums text-zinc-100 outline-none focus:border-zinc-500"
+                className="h-10 w-full rounded-md border border-zinc-700 bg-zinc-800/60 py-1.5 pl-5 pr-2 text-right text-sm tabular-nums text-zinc-100 outline-none focus:border-zinc-500"
               />
             </div>
 
@@ -166,7 +169,7 @@ export function SplitPanel({
               <button
                 type="button"
                 onClick={() => fillRemaining(line.id)}
-                className="shrink-0 text-[10px] text-zinc-500 hover:text-zinc-300"
+                className="h-10 whitespace-nowrap px-1 text-xs text-zinc-500 hover:text-zinc-300"
                 title="Fill remaining amount"
               >
                 Rest

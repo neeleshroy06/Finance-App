@@ -17,7 +17,7 @@ export function NavBar() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
+      <div className="mx-auto flex max-w-6xl items-center justify-around px-2 py-2">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (

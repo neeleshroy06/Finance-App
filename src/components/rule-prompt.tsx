@@ -17,7 +17,7 @@ export function RulePrompt({
   onDismiss,
 }: RulePromptProps) {
   return (
-    <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-lg px-4 animate-fade-in">
+    <div className="fixed inset-x-0 bottom-20 z-40 mx-auto max-w-2xl px-4 animate-fade-in">
       <div className="rounded-xl border border-zinc-700 bg-zinc-900 p-4 shadow-xl">
         <p className="mb-3 text-sm text-zinc-200">
           Always categorize{" "}

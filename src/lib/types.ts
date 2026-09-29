@@ -57,13 +57,13 @@ export const PERIOD_LABELS: Record<Period, string> = {
   all: "All time",
 };
 
-export function formatAmount(amount: number, round = false): string {
-  const value = round ? Math.round(Math.abs(amount)) : Math.abs(amount);
+export function formatAmount(amount: number): string {
+  const value = Math.abs(amount);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: round ? 0 : 2,
-    maximumFractionDigits: round ? 0 : 2,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
 }
 

@@ -70,7 +70,7 @@ export function HistoryRow({
             <p className="text-sm text-zinc-500">{dateLabel}</p>
           </div>
           <p className="text-lg font-semibold tabular-nums text-zinc-200">
-            {formatAmount(transaction.amount, true)}
+            {formatAmount(transaction.amount)}
           </p>
         </div>
       </button>

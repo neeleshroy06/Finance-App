@@ -173,7 +173,7 @@ export function ReviewScreen() {
         </p>
       )}
 
-      <div className="space-y-3">
+      <div className="grid gap-4 lg:grid-cols-2">
         {visible.map((tx) => (
           <TransactionRow
             key={tx.id}

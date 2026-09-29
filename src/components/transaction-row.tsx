@@ -56,7 +56,7 @@ export function TransactionRow({
   return (
     <div
       className={cn(
-        "rounded-xl border border-zinc-800/80 bg-zinc-900/50 p-4 transition-all duration-300",
+        "rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-4 transition-all duration-300 sm:p-5",
         isRemoving && "scale-95 opacity-0"
       )}
     >
@@ -68,7 +68,7 @@ export function TransactionRow({
           <p className="text-sm text-zinc-500">{dateLabel}</p>
         </div>
         <p className="text-lg font-semibold tabular-nums text-zinc-200">
-          {formatAmount(transaction.amount, true)}
+          {formatAmount(transaction.amount)}
         </p>
       </div>
 
