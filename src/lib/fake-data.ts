@@ -71,6 +71,7 @@ export const fakeStore = {
   updateCategory(id: string, category: Category): Transaction | null {
     const idx = transactions.findIndex((t) => t.id === id);
     if (idx === -1 || transactions[idx].category === null) return null;
+    transactionSplits = transactionSplits.filter((split) => split.transaction_id !== id);
     transactions[idx] = { ...transactions[idx], category };
     return transactions[idx];
   },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { HistoryRow } from "@/components/history-row";
 import { Category, SplitInput, Transaction, TransactionSplit } from "@/lib/types";
 
@@ -8,6 +9,7 @@ export function HistoryScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -24,21 +26,33 @@ export function HistoryScreen() {
     load();
   }, [load]);
 
+  useEffect(() => {
+    const transactionId = searchParams.get("transaction");
+    if (transactionId && transactions.some((transaction) => transaction.id === transactionId)) {
+      setEditingId(transactionId);
+    }
+  }, [searchParams, transactions]);
+
   const handleTap = (id: string) => {
     setEditingId((prev) => (prev === id ? null : id));
   };
 
-  const handleCategoryChange = (id: string, category: Category) => {
+  const handleCategoryChange = async (id: string, category: Category) => {
+    const previous = transactions;
     setTransactions((prev) =>
       prev.map((t) => (t.id === id ? { ...t, category, splits: undefined } : t))
     );
     setEditingId(null);
 
-    fetch(`/api/transactions/${id}/category`, {
+    const res = await fetch(`/api/transactions/${id}/category`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category }),
-    }).catch(console.error);
+    });
+    if (!res.ok) {
+      setTransactions(previous);
+      setEditingId(id);
+    }
   };
 
   const handleSplitChange = (id: string, splits: SplitInput[]) => {
@@ -61,8 +75,12 @@ export function HistoryScreen() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ splits }),
     })
-      .then((res) => res.json())
-      .then((data) => {
+      .then(async (res) => ({ ok: res.ok, data: await res.json() }))
+      .then(({ ok, data }) => {
+        if (!ok) {
+          setEditingId(id);
+          return;
+        }
         if (data.transaction?.splits) {
           setTransactions((prev) =>
             prev.map((t) => (t.id === id ? data.transaction : t))

@@ -50,5 +50,15 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  const { error: splitError } = await supabase
+    .from("transaction_splits")
+    .delete()
+    .eq("transaction_id", id)
+    .eq("user_id", user.id);
+
+  if (splitError) {
+    return NextResponse.json({ error: splitError.message }, { status: 500 });
+  }
+
   return NextResponse.json({ transaction: data });
 }

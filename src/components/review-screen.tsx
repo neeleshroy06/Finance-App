@@ -5,23 +5,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { TransactionRow } from "@/components/transaction-row";
 import { EmptyReviewState } from "@/components/empty-review-state";
 import { ProgressBar } from "@/components/progress-bar";
-import { RulePrompt } from "@/components/rule-prompt";
 import { Button } from "@/components/ui/button";
 import { Category, SplitInput, Transaction } from "@/lib/types";
 
 const BATCH_SIZE = 10;
-
-interface PendingRule {
-  merchant_name: string;
-  category: Category;
-}
 
 export function ReviewScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<"sign_in" | "load_failed" | null>(null);
-  const [pendingRule, setPendingRule] = useState<PendingRule | null>(null);
   const initialTotal = useRef(0);
 
   const loadTransactions = useCallback(async () => {
@@ -75,12 +68,6 @@ export function ReviewScreen() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.suggest_rule) {
-          setPendingRule(data.suggest_rule);
-        }
-      })
       .catch(console.error);
   };
 
@@ -92,23 +79,7 @@ export function ReviewScreen() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ splits }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.suggest_rule) {
-          setPendingRule(data.suggest_rule);
-        }
-      })
       .catch(console.error);
-  };
-
-  const confirmRule = async () => {
-    if (!pendingRule) return;
-    await fetch("/api/merchant-rules", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(pendingRule),
-    });
-    setPendingRule(null);
   };
 
   const visible = transactions.slice(0, BATCH_SIZE);
@@ -185,14 +156,6 @@ export function ReviewScreen() {
         ))}
       </div>
 
-      {pendingRule && (
-        <RulePrompt
-          merchantName={pendingRule.merchant_name}
-          category={pendingRule.category}
-          onConfirm={confirmRule}
-          onDismiss={() => setPendingRule(null)}
-        />
-      )}
     </div>
   );
 }

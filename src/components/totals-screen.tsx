@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { computeCategoryTotals, getTransactionsForCategory } from "@/lib/splits";
 import {
@@ -117,9 +118,10 @@ export function TotalsScreen() {
                 {expanded === cat && items.length > 0 && (
                   <div className="mt-2 space-y-1 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 animate-fade-in">
                     {items.map(({ transaction: tx, amount }) => (
-                      <div
+                      <Link
                         key={tx.id}
-                        className="flex items-center justify-between px-2 py-2 text-sm"
+                        href={`/history?transaction=${encodeURIComponent(tx.id)}`}
+                        className="flex items-center justify-between rounded-md px-2 py-2 text-sm transition-colors hover:bg-zinc-800/70"
                       >
                         <span className="truncate text-zinc-300">
                           {tx.merchant_name}
@@ -130,7 +132,7 @@ export function TotalsScreen() {
                         <span className="ml-2 shrink-0 tabular-nums text-zinc-400">
                           {formatAmount(amount)}
                         </span>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}
