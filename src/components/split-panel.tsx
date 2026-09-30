@@ -81,7 +81,7 @@ export function SplitPanel({
         category: line.category,
         amount: parseMoneyInput(line.amount),
       }))
-      .filter((s) => s.amount > 0);
+      .filter((s) => s.amount >= 0);
   }, [lines]);
 
   const remaining = remainingAmount(absTotal, parsedSplits);

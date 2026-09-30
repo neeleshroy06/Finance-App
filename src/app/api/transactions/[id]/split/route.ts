@@ -14,8 +14,8 @@ function validateSplits(splits: SplitInput[]): string | null {
     if (!split.category || !["food", "other", "friend", "extra", "refund", "skip"].includes(split.category)) {
       return "Invalid category in split";
     }
-    if (!split.amount || split.amount <= 0) {
-      return "Each split amount must be greater than 0";
+    if (!Number.isFinite(split.amount) || split.amount < 0) {
+      return "Each split amount must be zero or greater";
     }
   }
 
