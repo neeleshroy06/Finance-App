@@ -1,4 +1,5 @@
 import { HistoryScreen } from "@/components/history-screen";
+import { Suspense } from "react";
 
 export default function HistoryPage() {
   return (
@@ -7,7 +8,9 @@ export default function HistoryPage() {
         <h1 className="text-xl font-semibold text-zinc-100">History</h1>
         <p className="text-sm text-zinc-500">Tap a row to change its category</p>
       </header>
-      <HistoryScreen />
+      <Suspense fallback={null}>
+        <HistoryScreen />
+      </Suspense>
     </>
   );
 }
