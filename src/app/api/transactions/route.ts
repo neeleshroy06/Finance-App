@@ -24,6 +24,15 @@ function attachSplits(
 
 export async function GET(request: NextRequest) {
   const period = request.nextUrl.searchParams.get("period") ?? "week";
+  const requestedMonth = request.nextUrl.searchParams.get("month");
+  const monthMatch =
+    period === "month" ? /^(\d{4})-(0[1-9]|1[0-2])$/.exec(requestedMonth ?? "") : null;
+  const monthStart = monthMatch ? `${monthMatch[0]}-01` : null;
+  const nextMonthStart = monthMatch
+    ? new Date(Date.UTC(Number(monthMatch[1]), Number(monthMatch[2]), 1))
+        .toISOString()
+        .slice(0, 10)
+    : null;
 
   if (isFakeDataMode()) {
     const { isInPeriod } = await import("@/lib/types");
@@ -34,7 +43,9 @@ export async function GET(request: NextRequest) {
           t.category !== null &&
           t.category !== "skip" &&
           t.category !== "refund" &&
-          isInPeriod(t.date, period as "week" | "month" | "all")
+          (monthStart && nextMonthStart
+            ? t.date >= monthStart && t.date < nextMonthStart
+            : isInPeriod(t.date, period as "week" | "month" | "all"))
       );
     return NextResponse.json({ transactions: txs });
   }
@@ -58,7 +69,9 @@ export async function GET(request: NextRequest) {
     .order("date", { ascending: false });
 
   const start = getPeriodStart(period as "week" | "month" | "all");
-  if (start) {
+  if (monthStart && nextMonthStart) {
+    query = query.gte("date", monthStart).lt("date", nextMonthStart);
+  } else if (start) {
     query = query.gte("date", start.toISOString().split("T")[0]);
   }
 

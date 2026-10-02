@@ -13,7 +13,18 @@ import {
   TOTAL_CATEGORIES,
   Transaction,
 } from "@/lib/types";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+
+function shiftMonth(month: string, offset: number): string {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const date = new Date(year, monthNumber - 1 + offset, 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
 
 const categoryColors: Record<Exclude<Category, "skip" | "refund">, string> = {
   food: "text-orange-400",
@@ -31,6 +42,7 @@ const categoryBg: Record<Exclude<Category, "skip" | "refund">, string> = {
 
 export function TotalsScreen() {
   const [period, setPeriod] = useState<Period>("week");
+  const [month, setMonth] = useState(currentMonth);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [expanded, setExpanded] = useState<Exclude<Category, "skip" | "refund"> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,13 +50,14 @@ export function TotalsScreen() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/transactions?period=${period}`);
+      const monthParam = period === "month" ? `&month=${month}` : "";
+      const res = await fetch(`/api/transactions?period=${period}${monthParam}`);
       const data = await res.json();
       setTransactions(data.transactions ?? []);
     } finally {
       setLoading(false);
     }
-  }, [period]);
+  }, [period, month]);
 
   useEffect(() => {
     load();
@@ -69,10 +82,40 @@ export function TotalsScreen() {
                 : "text-zinc-500 hover:text-zinc-300"
             )}
           >
-            {PERIOD_LABELS[p]}
+            {p === "month" ? "Month" : PERIOD_LABELS[p]}
           </button>
         ))}
       </div>
+
+      {period === "month" && (
+        <div className="mb-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            aria-label="Previous month"
+            title="Previous month"
+            onClick={() => setMonth((value) => shiftMonth(value, -1))}
+            className="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <p className="min-w-36 text-center text-sm font-medium text-zinc-200">
+            {new Date(`${month}-01T00:00:00`).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+          <button
+            type="button"
+            aria-label="Next month"
+            title="Next month"
+            disabled={month >= currentMonth()}
+            onClick={() => setMonth((value) => shiftMonth(value, 1))}
+            className="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
