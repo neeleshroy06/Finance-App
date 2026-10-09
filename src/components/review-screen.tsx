@@ -6,7 +6,16 @@ import { TransactionRow } from "@/components/transaction-row";
 import { EmptyReviewState } from "@/components/empty-review-state";
 import { ProgressBar } from "@/components/progress-bar";
 import { Button } from "@/components/ui/button";
-import { Category, SplitInput, Transaction } from "@/lib/types";
+import { Category, CATEGORY_LABELS, SplitInput, Transaction } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+type UndoState = {
+  transaction: Transaction;
+  kind: "category" | "split";
+  category?: Category;
+};
+
+const UNDO_DURATION_MS = 8000;
 
 const BATCH_SIZE = 10;
 
@@ -15,7 +24,37 @@ export function ReviewScreen() {
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<"sign_in" | "load_failed" | null>(null);
+  const [undo, setUndo] = useState<UndoState | null>(null);
   const initialTotal = useRef(0);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearUndo = useCallback(() => {
+    if (undoTimerRef.current) {
+      clearTimeout(undoTimerRef.current);
+      undoTimerRef.current = null;
+    }
+    setUndo(null);
+  }, []);
+
+  const queueUndo = useCallback(
+    (state: UndoState) => {
+      if (undoTimerRef.current) {
+        clearTimeout(undoTimerRef.current);
+      }
+      setUndo(state);
+      undoTimerRef.current = setTimeout(() => {
+        setUndo(null);
+        undoTimerRef.current = null;
+      }, UNDO_DURATION_MS);
+    },
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    };
+  }, []);
 
   const loadTransactions = useCallback(async () => {
     setLoading(true);
@@ -60,7 +99,32 @@ export function ReviewScreen() {
     }, 250);
   };
 
+  const handleUndo = () => {
+    if (!undo) return;
+    const { transaction } = undo;
+    clearUndo();
+
+    const restored: Transaction = {
+      ...transaction,
+      category: null,
+      splits: undefined,
+    };
+
+    setTransactions((prev) => {
+      if (prev.some((t) => t.id === transaction.id)) return prev;
+      return [restored, ...prev];
+    });
+
+    fetch(`/api/transactions/${transaction.id}/uncategorize`, { method: "PATCH" }).catch(
+      console.error
+    );
+  };
+
   const handleCategorize = (id: string, category: Category) => {
+    const tx = transactions.find((t) => t.id === id);
+    if (tx) {
+      queueUndo({ transaction: tx, kind: "category", category });
+    }
     removeTransaction(id);
 
     fetch(`/api/transactions/${id}/categorize`, {
@@ -72,6 +136,10 @@ export function ReviewScreen() {
   };
 
   const handleSplit = (id: string, splits: SplitInput[]) => {
+    const tx = transactions.find((t) => t.id === id);
+    if (tx) {
+      queueUndo({ transaction: tx, kind: "split" });
+    }
     removeTransaction(id);
 
     fetch(`/api/transactions/${id}/split`, {
@@ -128,7 +196,7 @@ export function ReviewScreen() {
     );
   }
 
-  if (remaining === 0) {
+  if (remaining === 0 && !undo) {
     return <EmptyReviewState />;
   }
 
@@ -144,6 +212,10 @@ export function ReviewScreen() {
         </p>
       )}
 
+      {remaining === 0 && undo && (
+        <p className="mb-4 text-center text-sm text-zinc-500">All caught up — undo below if needed</p>
+      )}
+
       <div className="grid gap-4 lg:grid-cols-2">
         {visible.map((tx) => (
           <TransactionRow
@@ -156,6 +228,27 @@ export function ReviewScreen() {
         ))}
       </div>
 
+      {undo && (
+        <div
+          className={cn(
+            "fixed bottom-[4.5rem] left-4 right-4 z-50 mx-auto flex max-w-6xl items-center justify-between gap-3",
+            "rounded-xl border border-zinc-700/80 bg-zinc-900 px-4 py-3 shadow-lg"
+          )}
+        >
+          <p className="min-w-0 truncate text-sm text-zinc-300">
+            {undo.kind === "split"
+              ? `Split ${undo.transaction.merchant_name ?? "transaction"}`
+              : `${CATEGORY_LABELS[undo.category!]} · ${undo.transaction.merchant_name ?? "Transaction"}`}
+          </p>
+          <button
+            type="button"
+            onClick={handleUndo}
+            className="shrink-0 text-sm font-semibold text-cyan-400 hover:text-cyan-300"
+          >
+            Undo
+          </button>
+        </div>
+      )}
     </div>
   );
 }

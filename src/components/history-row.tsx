@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { SplitPanel } from "@/components/split-panel";
 import { cn } from "@/lib/utils";
@@ -45,8 +46,13 @@ export function HistoryRow({
   onCategoryChange,
   onSplitChange,
 }: HistoryRowProps) {
+  const [splitting, setSplitting] = useState(false);
   const category = transaction.category!;
   const isSplit = category === "split";
+
+  useEffect(() => {
+    if (!isEditing) setSplitting(false);
+  }, [isEditing]);
   const date = new Date(transaction.date + "T00:00:00");
   const dateLabel = date.toLocaleDateString("en-US", {
     weekday: "short",
@@ -80,32 +86,41 @@ export function HistoryRow({
       </button>
 
       <div className="mt-3">
-        {isEditing && isSplit ? (
+        {isEditing && (splitting || isSplit) ? (
           <SplitPanel
             totalAmount={transaction.amount}
             initialSplits={initialSplits}
             confirmLabel="Save"
             onConfirm={(splits) => onSplitChange(transaction.id, splits)}
-            onCancel={onTap}
+            onCancel={() => (isSplit ? onTap() : setSplitting(false))}
           />
         ) : isEditing ? (
-          <div className="grid w-full grid-cols-3 gap-2 sm:grid-cols-6">
-            {CATEGORIES.map((cat) => (
-              <Button
-                key={cat}
-                variant="category"
-                size="category"
-                className={cn(
-                  buttonStyles[cat],
-                  category === cat &&
-                    "ring-2 ring-zinc-400/60 ring-offset-1 ring-offset-zinc-950"
-                )}
-                onClick={() => onCategoryChange(transaction.id, cat)}
-              >
-                {CATEGORY_LABELS[cat]}
-              </Button>
-            ))}
-          </div>
+          <>
+            <div className="grid w-full grid-cols-3 gap-2 sm:grid-cols-6">
+              {CATEGORIES.map((cat) => (
+                <Button
+                  key={cat}
+                  variant="category"
+                  size="category"
+                  className={cn(
+                    buttonStyles[cat],
+                    category === cat &&
+                      "ring-2 ring-zinc-400/60 ring-offset-1 ring-offset-zinc-950"
+                  )}
+                  onClick={() => onCategoryChange(transaction.id, cat)}
+                >
+                  {CATEGORY_LABELS[cat]}
+                </Button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setSplitting(true)}
+              className="mt-2 w-full rounded-md border border-zinc-700/80 py-1.5 text-xs font-medium text-zinc-500 transition-colors hover:border-zinc-600 hover:text-zinc-300"
+            >
+              Split
+            </button>
+          </>
         ) : (
           <button type="button" onClick={onTap} className="flex w-full justify-end rounded-full">
             {isSplit && transaction.splits ? (

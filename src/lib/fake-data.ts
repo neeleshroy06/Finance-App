@@ -123,6 +123,14 @@ export const fakeStore = {
     };
   },
 
+  uncategorize(id: string): Transaction | null {
+    const idx = transactions.findIndex((t) => t.id === id);
+    if (idx === -1) return null;
+    transactionSplits = transactionSplits.filter((s) => s.transaction_id !== id);
+    transactions[idx] = { ...transactions[idx], category: null };
+    return enrichWithSuggestions(transactions[idx]);
+  },
+
   categorize(id: string, category: Category): {
     transaction: Transaction;
     suggest_rule: { merchant_name: string; category: Category } | null;
