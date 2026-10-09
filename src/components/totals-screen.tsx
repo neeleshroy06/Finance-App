@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { computeCategoryTotals, getTransactionsForCategory } from "@/lib/splits";
@@ -40,11 +40,21 @@ const categoryBg: Record<Exclude<Category, "skip" | "refund">, string> = {
   extra: "bg-emerald-500/10 border-emerald-500/20",
 };
 
+const toggleOnStyles: Record<Exclude<Category, "skip" | "refund">, string> = {
+  food: "bg-orange-500/25 text-orange-300 border-orange-500/50",
+  other: "bg-violet-500/25 text-violet-300 border-violet-500/50",
+  friend: "bg-cyan-500/25 text-cyan-300 border-cyan-500/50",
+  extra: "bg-emerald-500/25 text-emerald-300 border-emerald-500/50",
+};
+
 export function TotalsScreen() {
   const [period, setPeriod] = useState<Period>("week");
   const [month, setMonth] = useState(currentMonth);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [expanded, setExpanded] = useState<Exclude<Category, "skip" | "refund"> | null>(null);
+  const [includedCategories, setIncludedCategories] = useState<
+    Set<Exclude<Category, "skip" | "refund">>
+  >(() => new Set());
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -64,6 +74,25 @@ export function TotalsScreen() {
   }, [load]);
 
   const totals = computeCategoryTotals(transactions);
+
+  const customTotal = useMemo(() => {
+    let sum = 0;
+    for (const cat of TOTAL_CATEGORIES) {
+      if (includedCategories.has(cat)) {
+        sum += totals[cat];
+      }
+    }
+    return sum;
+  }, [includedCategories, totals]);
+
+  const toggleIncluded = (cat: Exclude<Category, "skip" | "refund">) => {
+    setIncludedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      return next;
+    });
+  };
 
   return (
     <div>
@@ -123,6 +152,43 @@ export function TotalsScreen() {
         </div>
       ) : (
         <div className="space-y-4">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+            <p className="mb-1 text-sm font-medium uppercase tracking-wide text-zinc-500">
+              Combined
+            </p>
+            <p className="mb-4 text-4xl font-bold tabular-nums tracking-tight text-zinc-100">
+              {includedCategories.size > 0 ? formatAmount(customTotal) : "—"}
+            </p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {TOTAL_CATEGORIES.map((cat) => {
+                const on = includedCategories.has(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleIncluded(cat)}
+                    className={cn(
+                      "rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                      on
+                        ? toggleOnStyles[cat]
+                        : "border-zinc-700/80 bg-zinc-800/40 text-zinc-500 hover:border-zinc-600 hover:text-zinc-400"
+                    )}
+                    aria-pressed={on}
+                  >
+                    {CATEGORY_LABELS[cat]}
+                  </button>
+                );
+              })}
+            </div>
+            {includedCategories.size > 0 && (
+              <p className="mt-3 text-xs text-zinc-600">
+                {TOTAL_CATEGORIES.filter((cat) => includedCategories.has(cat))
+                  .map((cat) => CATEGORY_LABELS[cat])
+                  .join(" + ")}
+              </p>
+            )}
+          </div>
+
           {TOTAL_CATEGORIES.map((cat) => {
             const items = getTransactionsForCategory(transactions, cat);
 
